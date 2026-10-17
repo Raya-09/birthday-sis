@@ -40,8 +40,8 @@
     .flower-btn{width:44px;height:44px;display:inline-grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#fff,#fff0);
       border:1px solid rgba(138,106,223,0.08);font-size:22px;cursor:pointer;margin-top:8px;box-shadow:0 6px 14px rgba(138,106,223,0.08)}
 
-    /* flowers (emoji) falling */
-    .flower{position:fixed;pointer-events:none;font-size:28px;z-index:9999;will-change:transform,opacity}
+    /* flower SVG wrappers falling */
+    .flower{position:fixed;pointer-events:none;z-index:9999;will-change:transform,opacity}
     @keyframes fallFlower{0%{transform:translateY(-10vh) rotate(0deg) translateX(0);opacity:1}50%{opacity:1}100%{transform:translateY(110vh) rotate(360deg) translateX(40px);opacity:0}}
 
     /* confetti (existing) */
@@ -51,7 +51,7 @@
     .sparkle{position:absolute;color:rgba(216,111,165,0.7);font-size:1.1rem;z-index:0;opacity:0.9}
     .sparkle.s1{top:8%;left:12%}.sparkle.s2{top:16%;right:14%}.sparkle.s3{bottom:18%;left:16%}.sparkle.s4{bottom:12%;right:18%}
 
-    @media (max-width:480px){.card{padding:20px}.flower{font-size:22px}}
+    @media (max-width:480px){.card{padding:20px}.flower svg{width:28px;height:28px}}
   </style>
 </head>
 <body>
@@ -66,7 +66,7 @@
 
     <!-- Flower button under the heading: small and subtle -->
     <div style="display:flex;justify-content:center;">
-      <button id="flowerBtn" class="flower-btn" title="Drop flowers">🌸</button>
+      <button id="flowerBtn" class="flower-btn" title="Drop flowers">❀</button>
     </div>
 
     <p class="subtext">You deserve a day filled with kindness, love, and beautiful moments. Thank you for being such a sweet and special part of my life.</p>
@@ -129,34 +129,52 @@
 
     document.getElementById('confettiBtn').addEventListener('click', popConfetti);
 
-    // Flower-falling effect (sunflowers, daisies, lilies, lavenders represented by emojis)
+    // SVG templates for flowers: sunflower, daisy, lily (stylized), lavender (stylized)
+    const flowerSVGs = [
+      // sunflower (yellow circle + brown center + petals)
+      '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g><circle cx="32" cy="32" r="10" fill="#6b3f1f"/><g fill="#ffd24d"><path d="M32 2 L36 18 L28 18 Z" transform="rotate(0 32 32) translate(0,14)"/><path d="M32 2 L36 18 L28 18 Z" transform="rotate(30 32 32) translate(0,14)"/><path d="M32 2 L36 18 L28 18 Z" transform="rotate(60 32 32) translate(0,14)"/><path d="M32 2 L36 18 L28 18 Z" transform="rotate(90 32 32) translate(0,14)"/><path d="M32 2 L36 18 L28 18 Z" transform="rotate(120 32 32) translate(0,14)"/><path d="M32 2 L36 18 L28 18 Z" transform="rotate(150 32 32) translate(0,14)"/><path d="M32 2 L36 18 L28 18 Z" transform="rotate(180 32 32) translate(0,14)"/><path d="M32 2 L36 18 L28 18 Z" transform="rotate(210 32 32) translate(0,14)"/><path d="M32 2 L36 18 L28 18 Z" transform="rotate(240 32 32) translate(0,14)"/><path d="M32 2 L36 18 L28 18 Z" transform="rotate(270 32 32) translate(0,14)"/><path d="M32 2 L36 18 L28 18 Z" transform="rotate(300 32 32) translate(0,14)"/><path d="M32 2 L36 18 L28 18 Z" transform="rotate(330 32 32) translate(0,14)"/></g></g></svg>',
+      // daisy (white petals, yellow center)
+      '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g><circle cx="32" cy="32" r="8" fill="#ffd24d"/><g fill="#fff"><ellipse cx="32" cy="8" rx="4" ry="10" transform="rotate(0 32 32)"/><ellipse cx="32" cy="8" rx="4" ry="10" transform="rotate(30 32 32)"/><ellipse cx="32" cy="8" rx="4" ry="10" transform="rotate(60 32 32)"/><ellipse cx="32" cy="8" rx="4" ry="10" transform="rotate(90 32 32)"/><ellipse cx="32" cy="8" rx="4" ry="10" transform="rotate(120 32 32)"/><ellipse cx="32" cy="8" rx="4" ry="10" transform="rotate(150 32 32)"/><ellipse cx="32" cy="8" rx="4" ry="10" transform="rotate(180 32 32)"/><ellipse cx="32" cy="8" rx="4" ry="10" transform="rotate(210 32 32)"/><ellipse cx="32" cy="8" rx="4" ry="10" transform="rotate(240 32 32)"/><ellipse cx="32" cy="8" rx="4" ry="10" transform="rotate(270 32 32)"/><ellipse cx="32" cy="8" rx="4" ry="10" transform="rotate(300 32 32)"/><ellipse cx="32" cy="8" rx="4" ry="10" transform="rotate(330 32 32)"/></g></g></svg>',
+      // lily (stylized - soft pink)
+      '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g><path d="M32 10 C40 10 48 18 48 26 C48 34 40 44 32 54 C24 44 16 34 16 26 C16 18 24 10 32 10 Z" fill="#ffd9e9" stroke="#f2a0c4" stroke-width="1"/></g></svg>',
+      // lavender (stylized stem with small purple buds)
+      '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g fill="#a27bff"><rect x="30" y="6" width="4" height="40" rx="2" fill="#7b5aff"/><circle cx="32" cy="12" r="3"/><circle cx="32" cy="18" r="3"/><circle cx="32" cy="24" r="3"/><circle cx="32" cy="30" r="3"/><circle cx="32" cy="36" r="3"/></g></svg>'
+    ];
+
+    // Flower-falling effect using SVGs
     function popFlowers(){
-      const flowers = ['🌻','🌼','🌸','💐']; // sunflower, daisy, lily-like, bouquet (lavender-ish)
-      const count = 40;
+      const count = 28;
       for(let i=0;i<count;i++){
-        const f = document.createElement('div');
-        f.className = 'flower';
-        f.textContent = flowers[Math.floor(Math.random()*flowers.length)];
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flower';
+        // pick a random svg template
+        const svg = flowerSVGs[Math.floor(Math.random()*flowerSVGs.length)];
+        wrapper.innerHTML = svg;
+
         // random horizontal start
-        const left = Math.random()*100; f.style.left = left + 'vw';
-        // slight horizontal drift and rotation handled by animation; vary font-size
-        const size = Math.random()*16 + 18; f.style.fontSize = size + 'px';
-        // staggered animation delays so they don't all fall at once
-        const delay = Math.random()*600; // ms
-        f.style.animation = 'fallFlower 2600ms linear forwards';
-        f.style.animationDelay = delay + 'ms';
-        // slight random transform for variety
-        f.style.transform = 'translateY(-10vh) rotate(' + (Math.random()*60-30) + 'deg)';
-        document.body.appendChild(f);
-        // remove after animation
-        setTimeout(()=> f.remove(), 3400 + delay);
+        const left = Math.random()*100; wrapper.style.left = left + 'vw';
+        // random size
+        const size = Math.random()*32 + 22; // px
+        const svgEl = wrapper.querySelector('svg');
+        if(svgEl){ svgEl.setAttribute('width', size); svgEl.setAttribute('height', size); svgEl.style.display = 'block'; }
+
+        // staggered animation delays
+        const delay = Math.random()*700; // ms
+        wrapper.style.animation = 'fallFlower 2700ms linear forwards';
+        wrapper.style.animationDelay = delay + 'ms';
+
+        // slight horizontal drift using transform translateX start
+        const drift = (Math.random()*80-40) + 'px';
+        wrapper.style.transform = 'translateY(-10vh) translateX(0) rotate(' + (Math.random()*40-20) + 'deg)';
+
+        document.body.appendChild(wrapper);
+        // remove after animation finishes
+        setTimeout(()=> wrapper.remove(), 3500 + delay);
       }
     }
 
     // attach flower button
     document.getElementById('flowerBtn').addEventListener('click', popFlowers);
-
-    // Accessibility: allow keyboard activation as well
     document.getElementById('flowerBtn').addEventListener('keyup', (e)=>{ if(e.key === 'Enter' || e.key === ' ') popFlowers(); });
 
     // small protection for mobile: enable audio on first user gesture
@@ -166,6 +184,25 @@
       }
       document.body.removeEventListener('pointerdown', initAudioOnce);
     });
+
+    // Confetti maker (keeps existing behavior)
+    function popConfetti(){
+      const colors=['#ff477e','#ff758f','#ff85a1','#fbb1bd','#4ae3b5','#60a5fa','#fbbf24'];
+      for(let i=0;i<60;i++){
+        const confetti = document.createElement('div');
+        confetti.className='confetti';
+        confetti.style.left = (Math.random()*100) + 'vw';
+        confetti.style.top = '-5vh';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+        const size = (Math.random()*8+6) + 'px';
+        confetti.style.width = size; confetti.style.height = size;
+        confetti.style.animationDuration = (Math.random()*1.5+1.5) + 's';
+        document.body.appendChild(confetti);
+        setTimeout(()=> confetti.remove(), 3000);
+      }
+    }
+
+    document.getElementById('confettiBtn').addEventListener('click', popConfetti);
   </script>
 </body>
 </html>
